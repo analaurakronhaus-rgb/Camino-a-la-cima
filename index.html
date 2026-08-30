@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camino a la Cima</title>
+<meta name="theme-color" content="#3d3c66">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Camino a la Cima">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%233d3c66'/%3E%3Cpath d='M10 78 L38 30 L52 52 L64 34 L90 78 Z' fill='%23e3a344'/%3E%3C/svg%3E">
+<link rel="icon" id="app-favicon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%233d3c66'/%3E%3Cpath d='M10 78 L38 30 L52 52 L64 34 L90 78 Z' fill='%23e3a344'/%3E%3C/svg%3E">
+<link rel="manifest" id="app-manifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #141a22;
+    --surface: #1d2530;
+    --surface-2: #252f3c;
+    --border: #303c4c;
+    --text: #edeef0;
+    --text-muted: #8b95a3;
+    --amber: #e3a344;
+    --sky: #6fa8c7;
+    --clay: #c4735a;
+    --moss: #7fa37f;
+    --danger: #b5533f;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: radial-gradient(ellipse at top, #1a2230 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  .top-row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); margin: 0 0 6px;
+  }
+  h1 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 29px; line-height: 1.1; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .date-label { color: var(--text-muted); font-size: 14px; margin: 0 0 20px; text-transform: capitalize; }
+
+  .edit-btn {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+    border-radius: 10px; padding: 8px 12px; font-size: 12.5px; font-family: 'Inter', sans-serif;
+    cursor: pointer; white-space: nowrap; margin-top: 4px;
+  }
+  .edit-btn.active { color: var(--amber); border-color: var(--amber); }
+
+  /* --- Trail hero --- */
+  .trail-card {
+    background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 18px 18px 10px; margin-bottom: 22px; position: relative; overflow: hidden;
+  }
+  .trail-card svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+  .streak-row { display: flex; align-items: baseline; justify-content: space-between; padding: 6px 4px 10px; }
+  .streak-num { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--amber); }
+  .streak-label { font-size: 12px; color: var(--text-muted); }
+  .today-frac { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-muted); }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-muted); margin: 4px 0 10px 2px;
+  }
+
+  .habit {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px;
+    transition: border-color .2s, background .2s;
+  }
+  .habit.done { border-color: var(--amber); background: linear-gradient(180deg, #262c22 0%, var(--surface) 100%); }
+
+  .habit-icon {
+    width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0; background: var(--surface-2); border: 1px solid var(--border);
+  }
+  .habit-body { flex: 1; min-width: 0; }
+  .habit-title { font-weight: 600; font-size: 14.5px; margin: 0 0 2px; }
+  .habit-sub { font-size: 12.5px; color: var(--text-muted); margin: 0; }
+
+  .progress-bar { height: 5px; border-radius: 3px; background: var(--surface-2); margin-top: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+
+  .stepper { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .stepper button {
+    width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text); font-size: 15px; cursor: pointer; line-height: 1;
+  }
+  .stepper button:active { background: var(--border); }
+  .stepper .count { font-family: 'JetBrains Mono', monospace; font-size: 13px; min-width: 60px; text-align: center; color: var(--text-muted); }
+
+  input[type=number] {
+    width: 74px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; padding: 5px 8px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  }
+  input[type=text] {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; padding: 7px 9px; font-family: 'Inter', sans-serif; font-size: 13px;
+  }
+  input[type=date] {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; padding: 6px 9px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+    color-scheme: dark;
+  }
+  select {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; padding: 5px 8px; font-size: 12.5px; margin-top: 8px;
+  }
+
+  .check {
+    width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border);
+    flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: transparent; transition: all .2s;
+  }
+  .check.on { border-color: var(--amber); background: var(--amber); color: #141a22; }
+
+  .del-btn {
+    width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--clay); font-size: 14px; cursor: pointer;
+    flex-shrink: 0; display: none; align-items: center; justify-content: center;
+  }
+  .edit-mode .del-btn { display: flex; }
+  .edit-mode .check { display: none; }
+
+  /* --- Add habit form --- */
+  .add-card {
+    background: var(--surface); border: 1px dashed var(--border); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 10px; cursor: pointer; text-align: center;
+    color: var(--text-muted); font-size: 13.5px; font-weight: 500;
+  }
+  .add-card:hover { border-color: var(--amber); color: var(--amber); }
+
+  .add-form {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .add-form .row { display: flex; gap: 8px; }
+  .add-form input[type=text].emoji-input { width: 46px; text-align: center; font-size: 17px; flex-shrink: 0; }
+  .add-form input[type=text].name-input { flex: 1; }
+  .type-toggle { display: flex; gap: 8px; }
+  .type-toggle button {
+    flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text-muted); font-size: 12.5px; cursor: pointer;
+  }
+  .type-toggle button.sel { border-color: var(--sky); color: var(--sky); }
+  .counter-fields { display: flex; gap: 8px; align-items: center; }
+  .counter-fields input { flex: 1; }
+  .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 2px; }
+  .btn-primary {
+    background: var(--amber); color: #141a22; border: none; border-radius: 8px;
+    padding: 8px 14px; font-weight: 600; font-size: 13px; cursor: pointer;
+  }
+  .btn-secondary {
+    background: transparent; color: var(--text-muted); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer;
+  }
+
+  /* --- Weekly strip --- */
+  .week-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-top: 22px; }
+  .week-row { display: flex; justify-content: space-between; margin-top: 10px; }
+  .day-col { display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; }
+  .peak { width: 26px; height: 22px; }
+  .day-name { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+
+  .loading { color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px 0; }
+
+  /* --- Tabs --- */
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tab-btn {
+    flex: 1; padding: 10px 6px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-muted); font-weight: 600; font-size: 12.5px;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  .tab-btn.active { background: var(--amber); color: #141a22; border-color: var(--amber); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .stat-strip {
+    display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 4px; margin-bottom: 18px;
+  }
+  .stat-cell { flex: 1; text-align: center; border-right: 1px solid var(--border); }
+  .stat-cell:last-child { border-right: none; }
+  .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 700; color: var(--amber); display: block; }
+  .stat-lbl { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+
+  .chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 0 14px; }
+  .chip {
+    padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface);
+    color: var(--text-muted); font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  .chip.sel { border-color: var(--amber); color: var(--amber); }
+
+  .session-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px;
+  }
+  .session-icon {
+    width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 17px; flex-shrink: 0; border: 1px solid var(--border);
+  }
+  .session-body { flex: 1; min-width: 0; }
+  .session-title { font-weight: 600; font-size: 14px; margin: 0 0 2px; }
+  .session-sub { font-size: 12px; color: var(--text-muted); margin: 0; font-family: 'JetBrains Mono', monospace; }
+  .session-notes { font-size: 12px; color: var(--text-muted); margin: 6px 0 0; font-style: italic; }
+
+  .routine-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+  .routine-head { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .routine-icon {
+    width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 16px; flex-shrink: 0; border: 1px solid var(--border);
+  }
+  .routine-title { font-weight: 600; font-size: 14px; margin: 0; }
+  .routine-sub { font-size: 11.5px; color: var(--text-muted); margin: 2px 0 0; text-transform: uppercase; letter-spacing: .04em; }
+  .routine-caret { margin-left: auto; color: var(--text-muted); font-size: 12px; transition: transform .2s; flex-shrink: 0; }
+  .routine-caret.open { transform: rotate(180deg); }
+  .routine-body { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .routine-body.open { display: block; }
+  .exercise-row { font-size: 13px; padding: 6px 0; border-bottom: 1px dashed var(--border); }
+  .exercise-row:last-child { border-bottom: none; }
+  .routine-actions { display: flex; gap: 8px; margin-top: 12px; }
+  textarea {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; padding: 8px 9px; font-family: 'Inter', sans-serif; font-size: 13px;
+    resize: vertical; min-height: 64px; width: 100%;
+  }
+
+  .goal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .goal-item { margin-bottom: 14px; }
+  .goal-item:last-child { margin-bottom: 0; }
+  .goal-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .goal-top .lbl { color: var(--text); font-weight: 500; }
+  .goal-top .val { font-family: 'JetBrains Mono', monospace; color: var(--text-muted); font-size: 12px; }
+  .goal-edit-row { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+  .goal-edit-row label { font-size: 11.5px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .bar-chart { width: 100%; height: auto; display: block; }
+
+  .heatmap-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .heatmap-dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
+  .heatmap-dow span { font-size: 9px; color: var(--text-muted); text-align: center; text-transform: uppercase; }
+  .heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 6px; }
+  .heat-cell { aspect-ratio: 1; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--border); }
+  .heat-cell.complete { background: var(--amber); border-color: var(--amber); }
+  .heat-cell.partial { background: #6b5626; border-color: var(--border); }
+  .heat-legend { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 11px; color: var(--text-muted); }
+  .heat-legend .heat-cell { width: 11px; height: 11px; aspect-ratio: unset; display: inline-block; }
+
+  .empty-hint { color: var(--text-muted); font-size: 13px; text-align: center; padding: 18px 0; }
+
+  /* --- Cumbres (Mendoza peaks) --- */
+  .peaks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px; }
+  .peak-tile {
+    aspect-ratio: 1; border-radius: 13px; border: 1px solid var(--border); background: var(--surface);
+    padding: 8px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; cursor: pointer; position: relative; overflow: hidden; text-align: center;
+  }
+  .peak-tile { border-color: var(--border); }
+  .peak-tile.sel { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber) inset; }
+  .peak-tile.climbed {
+    border-color: var(--amber);
+    background: radial-gradient(circle at 50% 36%, rgba(227,163,68,0.28), var(--surface) 72%);
+  }
+  .peak-visual { display: flex; align-items: center; justify-content: center; height: 40px; line-height: 0; }
+  .peak-tile.climbed .peak-visual { filter: drop-shadow(0 0 6px rgba(227,163,68,0.6)); }
+  .peak-tile .peak-name { font-size: 10.5px; font-weight: 600; line-height: 1.15; }
+  .peak-tile .peak-alt { font-size: 9px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+  .diff-tag {
+    font-size: 8px; padding: 1.5px 6px; border-radius: 8px; text-transform: uppercase;
+    letter-spacing: .03em; font-weight: 700; margin-top: 1px;
+  }
+  .peak-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-top: 14px; }
+  .peak-detail-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .peak-detail-head .peak-icon { font-size: 26px; line-height: 0; }
+  .peak-detail-head .peak-icon.medal-glow { filter: drop-shadow(0 0 10px rgba(227,163,68,0.65)); }
+  .peak-detail h3 { margin: 0 0 2px; font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; }
+  .peak-detail .peak-region { font-size: 12px; color: var(--text-muted); margin: 0; }
+  .peak-detail .peak-blurb { font-size: 13px; color: var(--text-muted); margin: 8px 0 12px; line-height: 1.5; }
+  .peak-photo-preview { width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; display: block; }
+  .file-label {
+    display: inline-block; padding: 9px 14px; border-radius: 9px; border: 1px dashed var(--border);
+    color: var(--text-muted); font-size: 12.5px; cursor: pointer; text-align: center; width: 100%;
+  }
+  .file-label:hover { border-color: var(--amber); color: var(--amber); }
+  .peak-detail input[type=file] { display: none; }
+  .close-detail { position: absolute; top: 10px; right: 12px; background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; }
+
+  /* --- Login gate --- */
+  #login-screen {
+    position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+    padding: 24px; background: linear-gradient(160deg, #232a4d 0%, #3d3c66 40%, #7a5468 75%, #d99a5e 100%);
+  }
+  .login-card {
+    width: 100%; max-width: 340px; background: rgba(26,31,43,0.88); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px 24px; text-align: center; backdrop-filter: blur(6px);
+  }
+  .login-card .peak-icon-big { font-size: 34px; display: block; margin-bottom: 6px; }
+  .login-card h1 { font-family: 'Fraunces', serif; font-size: 22px; margin: 0 0 4px; }
+  .login-card p.tag { color: var(--text-muted); font-size: 13px; margin: 0 0 20px; }
+  .login-card input[type=email], .login-card input[type=password] {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 11px 12px; font-family: 'Inter', sans-serif; font-size: 14px; margin-bottom: 12px;
+  }
+  .login-card .btn-primary { width: 100%; padding: 11px; font-size: 14px; }
+  .login-card .btn-secondary { width: 100%; padding: 9px; font-size: 12.5px; margin-top: 8px; }
+  .login-card .disclaimer { font-size: 10.5px; color: var(--text-muted); margin-top: 14px; line-height: 1.5; }
+  .login-error { color: var(--danger); font-size: 12px; margin: -6px 0 10px; display: none; }
+  #app.hidden { display: none; }
+  .user-chip {
+    display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted);
+    cursor: pointer; margin-top: 4px;
+  }
+  .user-chip:hover { color: var(--amber); }
+</style>
+</head>
+<body>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<div id="login-screen">
+  <div class="login-card">
+    <span class="peak-icon-big">🏔️</span>
+    <h1>Camino a la Cima</h1>
+    <p class="tag" id="login-tag">Iniciá sesión para guardar tu progreso en la nube</p>
+    <input type="email" id="login-email" placeholder="tu@mail.com" autocomplete="email">
+    <input type="password" id="login-password" placeholder="Contraseña" autocomplete="current-password">
+    <p class="login-error" id="login-error"></p>
+    <button class="btn-primary" id="login-submit" type="button">Iniciar sesión</button>
+    <button class="btn-secondary" id="login-toggle-mode" type="button">¿No tenés cuenta? Creála</button>
+    <p class="disclaimer">Tus datos quedan guardados en tu cuenta, sincronizados en la nube entre cualquier dispositivo.</p>
+  </div>
+</div>
+
+<div class="wrap hidden" id="app">
+  <div class="top-row">
+    <div>
+      <p class="eyebrow">Camino a la cima</p>
+      <h1 id="page-title">Tus metas de hoy</h1>
+      <p class="date-label" id="date-label"></p>
+      <p class="user-chip" id="user-chip" title="Cerrar sesión">👤 <span id="user-email-label"></span> · salir</p>
+    </div>
+    <button class="edit-btn" id="edit-toggle">✎ Editar</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="hoy">Hoy</button>
+    <button class="tab-btn" data-tab="actividad">Actividad</button>
+    <button class="tab-btn" data-tab="cumbres">Cumbres</button>
+    <button class="tab-btn" data-tab="progreso">Progreso</button>
+  </div>
+
+  <div id="tab-hoy" class="tab-panel active">
+  <div class="trail-card">
+    <svg id="trail-svg" viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#232a4d"/>
+          <stop offset="38%" stop-color="#3d3c66"/>
+          <stop offset="68%" stop-color="#7a5468"/>
+          <stop offset="100%" stop-color="#d99a5e"/>
+        </linearGradient>
+        <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fbe0a0" stop-opacity="0.65"/>
+          <stop offset="100%" stop-color="#fbe0a0" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="mtnFar" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#7783a8"/>
+          <stop offset="100%" stop-color="#4e5678"/>
+        </linearGradient>
+        <linearGradient id="mtnMid" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8e7178"/>
+          <stop offset="100%" stop-color="#584750"/>
+        </linearGradient>
+        <linearGradient id="mtnNear" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#9c7455"/>
+          <stop offset="100%" stop-color="#432f24"/>
+        </linearGradient>
+        <linearGradient id="snowGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#d9c9c9"/>
+        </linearGradient>
+        <linearGradient id="hazeGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#dfe4f2" stop-opacity="0.32"/>
+          <stop offset="100%" stop-color="#dfe4f2" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="trailGrad" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%" stop-color="#c47a3f"/>
+          <stop offset="100%" stop-color="#f4c56b"/>
+        </linearGradient>
+        <filter id="cloudBlur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4.5"/>
+        </filter>
+        <filter id="rockTexture" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85 0.9" numOctaves="2" seed="7" result="noise"/>
+          <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.35 0"/>
+        </filter>
+      </defs>
+      <rect x="0" y="0" width="400" height="150" fill="url(#skyGrad)"/>
+      <circle cx="330" cy="35" r="42" fill="url(#sunGlow)"/>
+      <circle cx="330" cy="35" r="13" fill="#fbe0a0"/>
+      <circle cx="330" cy="35" r="8" fill="#fff6df"/>
+      <ellipse cx="95" cy="28" rx="32" ry="7" fill="#fff" opacity="0.16" filter="url(#cloudBlur)"/>
+      <ellipse cx="255" cy="16" rx="42" ry="6" fill="#fff" opacity="0.13" filter="url(#cloudBlur)"/>
+
+      <polygon points="0,150 20,95 45,60 65,85 90,50 115,78 140,42 165,70 190,48 215,82 245,38 270,65 300,20 325,55 350,35 375,68 400,50 400,150" fill="url(#mtnFar)" opacity="0.75"/>
+      <polygon points="128,54 140,42 152,55 145,53 135,53" fill="url(#snowGrad)" opacity="0.9"/>
+      <polygon points="233,50 245,38 257,52 249,49 239,49" fill="url(#snowGrad)" opacity="0.9"/>
+      <polygon points="280,42 300,20 320,44 312,39 306,44 300,35 293,41 288,39" fill="url(#snowGrad)" opacity="0.92"/>
+      <rect x="0" y="30" width="400" height="55" fill="url(#hazeGrad)"/>
+
+      <polygon points="0,150 15,120 40,95 70,115 95,80 125,105 150,72 180,100 205,65 235,98 260,60 290,92 320,58 350,88 380,62 400,80 400,150" fill="url(#mtnMid)" opacity="0.88"/>
+      <polygon points="140,80 150,72 160,82 154,79 146,79" fill="url(#snowGrad)" opacity="0.6"/>
+      <polygon points="248,68 260,60 271,70 264,67 256,67" fill="url(#snowGrad)" opacity="0.6"/>
+      <rect x="0" y="55" width="400" height="45" fill="url(#hazeGrad)" opacity="0.6"/>
+
+      <polygon points="0,150 25,112 55,132 85,94 115,122 145,88 175,116 205,80 235,112 265,84 300,108 335,78 365,102 400,74 400,150" fill="url(#mtnNear)"/>
+      <polygon points="0,150 25,112 55,132 85,94 115,122 145,88 175,116 205,80 235,112 265,84 300,108 335,78 365,102 400,74 400,150" fill="#000" filter="url(#rockTexture)" opacity="0.5"/>
+
+      <path id="trail-bg" d="M30,138 C90,120 150,118 190,88 C240,58 300,55 355,23" stroke="#9c8058" stroke-width="3" stroke-dasharray="1,9" stroke-linecap="round" fill="none" opacity="0.8"/>
+      <path id="trail-fill" d="M30,138 C90,120 150,118 190,88 C240,58 300,55 355,23" stroke="url(#trailGrad)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+      <g id="checkpoints"></g>
+      <g id="flag" transform="translate(355,23)">
+        <line x1="0" y1="0" x2="0" y2="-16" stroke="#e3a344" stroke-width="2"/>
+        <path d="M0,-16 L11,-12 L0,-8 Z" fill="#5a6270"/>
+      </g>
+      <g id="avatar">
+        <ellipse cx="0" cy="10" rx="6.5" ry="2" fill="#000" opacity="0.25"/>
+        <!-- backpack -->
+        <rect x="-6.8" y="-9.2" width="4.4" height="7.2" rx="1.5" fill="#3a4655"/>
+        <line x1="-5.8" y1="-9" x2="-2.6" y2="-2.2" stroke="#3a4655" stroke-width="1.4" stroke-linecap="round"/>
+        <!-- back leg + boot -->
+        <line x1="-1" y1="0" x2="-4" y2="9" stroke="#2b333d" stroke-width="2.6" stroke-linecap="round"/>
+        <ellipse cx="-4.3" cy="9.2" rx="1.6" ry="1" fill="#141a22"/>
+        <!-- front leg + boot -->
+        <line x1="1" y1="0" x2="4.5" y2="9" stroke="#1f242b" stroke-width="2.6" stroke-linecap="round"/>
+        <ellipse cx="4.8" cy="9.3" rx="1.6" ry="1" fill="#141a22"/>
+        <!-- torso / jacket -->
+        <line x1="0" y1="0" x2="1.4" y2="-9" stroke="#c97b4a" stroke-width="4.4" stroke-linecap="round"/>
+        <!-- back arm -->
+        <line x1="0" y1="-6.2" x2="-3.6" y2="-2.4" stroke="#c97b4a" stroke-width="2" stroke-linecap="round"/>
+        <!-- front arm -->
+        <line x1="1.4" y1="-7.2" x2="5" y2="-3.2" stroke="#c97b4a" stroke-width="2" stroke-linecap="round"/>
+        <!-- trekking pole -->
+        <line x1="5" y1="-3.2" x2="8.6" y2="9.6" stroke="#8b95a3" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- head -->
+        <circle cx="2" cy="-11.6" r="3" fill="#f2d9b8"/>
+        <!-- cap -->
+        <path d="M -1 -13.1 A 3 3 0 0 1 5 -12.4 L 4.8 -10.9 L -0.9 -11.3 Z" fill="#e3a344"/>
+      </g>
+    </svg>
+    <div class="streak-row">
+      <div>
+        <span class="streak-num" id="streak-num">0</span>
+        <span class="streak-label"> días seguidos en el sendero</span>
+      </div>
+      <div class="today-frac" id="today-frac">0/4</div>
+    </div>
+  </div>
+
+  <p class="section-label">Metas diarias</p>
+  <div id="habits-list"><div class="loading">Cargando tus metas…</div></div>
+  <div id="add-card" class="add-card">+ Agregar hábito</div>
+  <div id="add-form-holder"></div>
+
+  <div class="week-card">
+    <p class="section-label" style="margin:0;">Últimos 7 días</p>
+    <div class="week-row" id="week-row"></div>
+  </div>
+  </div>
+  <!-- /tab-hoy -->
+
+  <div id="tab-actividad" class="tab-panel">
+    <div class="stat-strip" id="activity-stat-strip">
+      <div class="stat-cell"><span class="stat-num" id="stat-week-km">0</span><span class="stat-lbl">km semana</span></div>
+      <div class="stat-cell"><span class="stat-num" id="stat-week-elev">0</span><span class="stat-lbl">desnivel m</span></div>
+      <div class="stat-cell"><span class="stat-num" id="stat-week-sessions">0</span><span class="stat-lbl">sesiones</span></div>
+    </div>
+
+    <p class="section-label">Registrar actividad</p>
+    <div id="log-add-card" class="add-card">+ Registrar sesión</div>
+    <div id="log-form-holder"></div>
+
+    <p class="section-label" style="margin-top:22px;">Sesiones recientes</p>
+    <div id="sessions-list"><div class="loading">Cargando…</div></div>
+
+    <p class="section-label" style="margin-top:22px;">Rutinas</p>
+    <div class="chip-row" id="routine-chips">
+      <button class="chip sel" data-sport="all">Todas</button>
+      <button class="chip" data-sport="running">Running</button>
+      <button class="chip" data-sport="trail">Trail running</button>
+      <button class="chip" data-sport="trekking">Trekking</button>
+      <button class="chip" data-sport="multi">Multideporte</button>
+    </div>
+    <div id="routines-list"><div class="loading">Cargando…</div></div>
+    <div id="routine-add-card" class="add-card">+ Crear rutina propia</div>
+    <div id="routine-form-holder"></div>
+  </div>
+  <!-- /tab-actividad -->
+
+  <div id="tab-cumbres" class="tab-panel">
+    <div class="stat-strip" id="peaks-stat-strip">
+      <div class="stat-cell"><span class="stat-num" id="stat-peaks-climbed">0</span><span class="stat-lbl">cumbres logradas</span></div>
+      <div class="stat-cell"><span class="stat-num" id="stat-peaks-total">0</span><span class="stat-lbl">disponibles</span></div>
+      <div class="stat-cell"><span class="stat-num" id="stat-peaks-meters">0</span><span class="stat-lbl">m acumulados</span></div>
+    </div>
+    <p class="section-label">Cerros y cumbres de Mendoza</p>
+    <div class="chip-row" id="peaks-type-chips">
+      <button class="chip sel" data-type="all">Todas</button>
+      <button class="chip" data-type="cerro">Cerros</button>
+      <button class="chip" data-type="quebrada">Quebradas</button>
+    </div>
+    <div class="peaks-grid" id="peaks-grid"></div>
+    <div id="peak-detail-holder"></div>
+    <div id="peak-add-card" class="add-card" style="margin-top:14px;">+ Agregar otro cerro</div>
+    <div id="peak-add-form-holder"></div>
+  </div>
+  <!-- /tab-cumbres -->
+
+  <div id="tab-progreso" class="tab-panel">
+    <p class="section-label">Metas semanales</p>
+    <div class="goal-card" id="goal-card"></div>
+
+    <p class="section-label">Distancia recorrida</p>
+    <div class="chip-row" id="chart-mode-chips">
+      <button class="chip sel" data-mode="week">Por semana</button>
+      <button class="chip" data-mode="hist">Histórico</button>
+    </div>
+    <div class="chart-card">
+      <svg id="km-chart" class="bar-chart" viewBox="0 0 400 160" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <p class="section-label">Constancia de hábitos <span style="text-transform:none; color:var(--text-muted);">(últimas 5 semanas)</span></p>
+    <div class="heatmap-card">
+      <div class="heatmap-dow"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+      <div class="heatmap-grid" id="heatmap-grid"></div>
+      <div class="heat-legend">
+        <span class="heat-cell"></span> nada
+        <span class="heat-cell partial"></span> parcial
+        <span class="heat-cell complete"></span> completo
+      </div>
+    </div>
+  </div>
+  <!-- /tab-progreso -->
+</div>
+
+<script>
+/* ================= Web App Manifest (instalable como app) ================= */
+(function setupManifest(){
+  const icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%233d3c66'/%3E%3Cpath d='M10 78 L38 30 L52 52 L64 34 L90 78 Z' fill='%23e3a344'/%3E%3C/svg%3E";
+  const manifest = {
+    name: 'Camino a la Cima',
+    short_name: 'Camino a la Cima',
+    start_url: '.',
+    display: 'standalone',
+    background_color: '#141a22',
+    theme_color: '#3d3c66',
+    icons: [{ src: icon, sizes: '100x100', type: 'image/svg+xml' }],
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  document.getElementById('app-manifest').setAttribute('href', URL.createObjectURL(blob));
+})();
+
+/* ================= Firebase: Auth real + Firestore en la nube ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyC4mufjWiVwC-D-Ym07h-ugoGxQcX_AeDA",
+  authDomain: "camino-a-la-cima-88b13.firebaseapp.com",
+  projectId: "camino-a-la-cima-88b13",
+  storageBucket: "camino-a-la-cima-88b13.firebasestorage.app",
+  messagingSenderId: "286426718636",
+  appId: "1:286426718636:web:8b2a8de4f9179896765a09"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUID = null;
+let userEmail = null;
+let authMode = 'login'; // 'login' | 'signup'
+
+function nsKey(key){ return key; } // el aislamiento ahora lo hace Firestore por usuario, no un prefijo de texto
+
+function authErrorMessage(err){
+  const map = {
+    'auth/invalid-email': 'Ese mail no es válido.',
+    'auth/user-not-found': 'No existe una cuenta con ese mail. Probá crear una.',
+    'auth/wrong-password': 'Contraseña incorrecta.',
+    'auth/invalid-credential': 'Mail o contraseña incorrectos.',
+    'auth/email-already-in-use': 'Ya existe una cuenta con ese mail. Probá iniciar sesión.',
+    'auth/weak-password': 'La contraseña necesita al menos 6 caracteres.',
+    'auth/too-many-requests': 'Demasiados intentos. Esperá un momento y probá de nuevo.',
+  };
+  return map[err.code] || 'Ocurrió un error. Probá de nuevo.';
+}
+
+function showLoginError(msg){
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function hideLoginError(){
+  document.getElementById('login-error').style.display = 'none';
+}
+
+document.getElementById('login-toggle-mode').addEventListener('click', () => {
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  document.getElementById('login-submit').textContent = authMode === 'login' ? 'Iniciar sesión' : 'Crear cuenta';
+  document.getElementById('login-toggle-mode').textContent = authMode === 'login' ? '¿No tenés cuenta? Creála' : '¿Ya tenés cuenta? Iniciá sesión';
+  hideLoginError();
+});
+
+document.getElementById('login-submit').addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  hideLoginError();
+  if (!email || !password){ showLoginError('Completá mail y contraseña.'); return; }
+  const btn = document.getElementById('login-submit');
+  btn.disabled = true;
+  try {
+    if (authMode === 'login'){
+      await auth.signInWithEmailAndPassword(email, password);
+    } else {
+      await auth.createUserWithEmailAndPassword(email, password);
+    }
+    // onAuthStateChanged se encarga de mostrar la app
+  } catch (err) {
+    showLoginError(authErrorMessage(err));
+  } finally {
+    btn.disabled = false;
+  }
+});
+document.getElementById('login-password').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('login-submit').click();
+});
+
+document.getElementById('user-chip').addEventListener('click', () => {
+  auth.signOut();
+});
+
+auth.onAuthStateChanged((user) => {
+  if (user){
+    currentUID = user.uid;
+    userEmail = user.email;
+    showApp();
+  } else {
+    currentUID = null;
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').classList.add('hidden');
+  }
+});
+
+function showApp(){
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('user-email-label').textContent = userEmail;
+  init();
+}
+
+/* ================= Storage: Firestore en la nube, aislado por usuario ================= */
+function userDoc(key){
+  return db.collection('users').doc(currentUID).collection('data').doc(key);
+}
+window.storage = {
+  get: async (key) => {
+    const snap = await userDoc(key).get();
+    if (!snap.exists) throw new Error('not found');
+    return { key, value: snap.data().value, shared: false };
+  },
+  set: async (key, value) => {
+    await userDoc(key).set({ value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    return { key, value, shared: false };
+  },
+  delete: async (key) => {
+    await userDoc(key).delete();
+    return { key, deleted: true, shared: false };
+  },
+  list: async (prefix) => {
+    const snap = await db.collection('users').doc(currentUID).collection('data').get();
+    const keys = [];
+    snap.forEach((doc) => { if (!prefix || doc.id.startsWith(prefix)) keys.push(doc.id); });
+    return { keys };
+  },
+};
+
+const HABITS_KEY = 'habits:list';
+let editMode = false;
+let habits = [];
+let today = { key: '', data: {} };
+
+function pad(n){ return n < 10 ? '0'+n : ''+n; }
+function dateKeyOffset(offset){
+  const d = new Date(); d.setDate(d.getDate() - offset);
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function prettyDate(){
+  return new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function defaultHabits(){
+  return [
+    { id: 'water', icon: '💧', title: 'Tomar agua', type: 'counter', goal: 2, unit: 'L', step: 0.25, builtin: true },
+    { id: 'veggies', icon: '🥦', title: 'Comer verduras', type: 'checkbox', builtin: true, sub: 'Al menos 2 comidas con verduras o fruta' },
+    { id: 'exercise', icon: '💪', title: 'Hacer ejercicio', type: 'checkbox', builtin: true, sub: 'Rutina del plan o caminata' },
+  ];
+}
+
+async function loadHabits(){
+  try {
+    const res = await window.storage.get(nsKey(HABITS_KEY), false);
+    if (res && res.value) {
+      let list = JSON.parse(res.value);
+      let changed = false;
+      // migración: se sacó el hábito de pasos (requería reloj/celular para contarlos)
+      if (list.some(h => h.id === 'steps')) {
+        list = list.filter(h => h.id !== 'steps');
+        changed = true;
+      }
+      // migración: "tomar agua" pasa de vasos a litros
+      const waterIdx = list.findIndex(h => h.id === 'water');
+      if (waterIdx !== -1 && list[waterIdx].unit === 'vasos') {
+        list[waterIdx] = { ...list[waterIdx], goal: 2, unit: 'L', step: 0.25 };
+        changed = true;
+      }
+      if (changed) await saveHabits(list);
+      return list;
+    }
+  } catch (e) { /* not found yet */ }
+  const d = defaultHabits();
+  await saveHabits(d);
+  return d;
+}
+async function saveHabits(list){
+  try { await window.storage.set(nsKey(HABITS_KEY), JSON.stringify(list), false); }
+  catch (e) { console.error('Error al guardar hábitos', e); }
+}
+async function loadDay(key){
+  try {
+    const res = await window.storage.get(nsKey(key), false);
+    if (res && res.value) return JSON.parse(res.value);
+  } catch (e) { /* not found */ }
+  return {};
+}
+async function saveDay(key, data){
+  try { await window.storage.set(nsKey(key), JSON.stringify(data), false); }
+  catch (e) { console.error('Error al guardar el día', e); }
+}
+
+function habitDone(h, data){
+  const v = data[h.id];
+  if (h.type === 'checkbox') return !!v;
+  return (v || 0) >= h.goal;
+}
+function countDone(data){ return habits.filter(h => habitDone(h, data)).length; }
+function isComplete(data){ return habits.length > 0 && countDone(data) === habits.length; }
+
+/* ---------- Trail rendering ---------- */
+function renderTrail(){
+  const pathEl = document.getElementById('trail-fill');
+  const bgEl = document.getElementById('trail-bg');
+  const total = pathEl.getTotalLength();
+  const n = habits.length;
+  const done = countDone(today.data);
+  const pct = n > 0 ? done / n : 0;
+
+  pathEl.setAttribute('stroke-dasharray', total);
+  pathEl.setAttribute('stroke-dashoffset', total * (1 - pct));
+
+  // checkpoints at each habit's position along the trail
+  const cpGroup = document.getElementById('checkpoints');
+  cpGroup.innerHTML = '';
+  for (let i = 0; i < n; i++){
+    const len = total * ((i + 1) / n);
+    const p = bgEl.getPointAtLength(len);
+    const on = i < done;
+    cpGroup.insertAdjacentHTML('beforeend',
+      `<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="${on ? '#e3a344' : '#3a4655'}"/>`);
+  }
+
+  // avatar position + rotation along the tangent
+  const avatarLen = total * pct;
+  const p1 = bgEl.getPointAtLength(Math.max(0, avatarLen - 1));
+  const p2 = bgEl.getPointAtLength(Math.min(total, avatarLen + 1));
+  const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * (180 / Math.PI);
+  const pos = bgEl.getPointAtLength(avatarLen);
+  document.getElementById('avatar').setAttribute('transform', `translate(${pos.x},${pos.y}) rotate(${angle * 0.3})`);
+
+  document.getElementById('flag').querySelector('path').setAttribute('fill', pct >= 1 ? '#e3a344' : '#5a6270');
+  document.getElementById('today-frac').textContent = `${done}/${n}`;
+}
+
+/* ---------- Habit cards ---------- */
+function fmtNum(n){
+  const r = Math.round(n * 100) / 100;
+  return Number.isInteger(r) ? r : r.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+}
+function habitControlHtml(h, val){
+  if (h.type === 'counter'){
+    const pct = Math.min(100, Math.round(((val || 0) / h.goal) * 100));
+    if ((h.step || 1) <= 1){
+      return `<div class="stepper" data-id="${h.id}">
+        <button class="minus" type="button">–</button>
+        <span class="count">${fmtNum(val || 0)} ${h.unit}</span>
+        <button class="plus" type="button">+</button>
+      </div>`;
+    }
+    return `<input type="number" class="counter-input" data-id="${h.id}" value="${val || 0}" min="0" step="${h.step || 1}">
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background: var(--sky);"></div></div>`;
+  }
+  return '';
+}
+
+function renderHabits(){
+  const list = document.getElementById('habits-list');
+  list.className = editMode ? 'edit-mode' : '';
+  const d = today.data;
+  list.innerHTML = habits.map(h => {
+    const val = d[h.id];
+    const done = habitDone(h, d);
+    const sub = h.type === 'counter' ? `${fmtNum(val || 0)} / ${h.goal} ${h.unit}` : (h.sub || '');
+    return `<div class="habit ${done ? 'done' : ''}" data-id="${h.id}">
+      <div class="habit-icon">${h.icon}</div>
+      <div class="habit-body">
+        <p class="habit-title">${h.title}</p>
+        <p class="habit-sub">${sub}</p>
+        ${habitControlHtml(h, val)}
+      </div>
+      ${h.type === 'checkbox' ? `<div class="check ${done ? 'on' : ''}" data-toggle="${h.id}">${done ? '✓' : ''}</div>` : ''}
+      <button class="del-btn" data-del="${h.id}">×</button>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('[data-toggle]').forEach(el => {
+    el.addEventListener('click', async () => {
+      if (editMode) return;
+      const id = el.getAttribute('data-toggle');
+      today.data[id] = !today.data[id];
+      await persistToday();
+    });
+  });
+  list.querySelectorAll('[data-del]').forEach(el => {
+    el.addEventListener('click', async () => {
+      const id = el.getAttribute('data-del');
+      habits = habits.filter(h => h.id !== id);
+      await saveHabits(habits);
+      renderHabits(); renderTrail();
+    });
+  });
+  list.querySelectorAll('.counter-input').forEach(el => {
+    el.addEventListener('change', async (e) => {
+      today.data[el.getAttribute('data-id')] = Math.max(0, parseFloat(e.target.value) || 0);
+      await persistToday();
+    });
+  });
+  list.querySelectorAll('.stepper').forEach(el => {
+    const id = el.getAttribute('data-id');
+    const h = habits.find(hh => hh.id === id);
+    const step = (h && h.step) || 1;
+    el.querySelector('.plus').addEventListener('click', async () => {
+      today.data[id] = Math.round(((today.data[id] || 0) + step) * 100) / 100;
+      await persistToday();
+    });
+    el.querySelector('.minus').addEventListener('click', async () => {
+      today.data[id] = Math.max(0, Math.round(((today.data[id] || 0) - step) * 100) / 100);
+      await persistToday();
+    });
+  });
+}
+
+async function persistToday(){
+  renderHabits(); renderTrail();
+  await saveDay(today.key, today.data);
+  await renderStreakAndWeek();
+  if (document.getElementById('heatmap-grid')) await renderHeatmap();
+}
+
+/* ---------- Add habit form ---------- */
+function showAddForm(){
+  document.getElementById('add-card').style.display = 'none';
+  const holder = document.getElementById('add-form-holder');
+  holder.innerHTML = `
+    <div class="add-form">
+      <div class="row">
+        <input type="text" class="emoji-input" id="new-emoji" value="🎯" maxlength="2">
+        <input type="text" class="name-input" id="new-title" placeholder="Nombre del hábito (ej: Estirar, Dormir 8hs)">
+      </div>
+      <div class="type-toggle">
+        <button type="button" class="sel" id="type-checkbox">Sí / No</button>
+        <button type="button" id="type-counter">Contador</button>
+      </div>
+      <div class="counter-fields" id="counter-fields" style="display:none;">
+        <input type="number" id="new-goal" placeholder="Meta" min="1" value="1">
+        <input type="text" id="new-unit" placeholder="Unidad (ej: vasos, min)">
+      </div>
+      <div class="form-actions">
+        <button class="btn-secondary" id="cancel-add" type="button">Cancelar</button>
+        <button class="btn-primary" id="confirm-add" type="button">Agregar</button>
+      </div>
+    </div>`;
+
+  let newType = 'checkbox';
+  document.getElementById('type-checkbox').addEventListener('click', () => {
+    newType = 'checkbox';
+    document.getElementById('type-checkbox').classList.add('sel');
+    document.getElementById('type-counter').classList.remove('sel');
+    document.getElementById('counter-fields').style.display = 'none';
+  });
+  document.getElementById('type-counter').addEventListener('click', () => {
+    newType = 'counter';
+    document.getElementById('type-counter').classList.add('sel');
+    document.getElementById('type-checkbox').classList.remove('sel');
+    document.getElementById('counter-fields').style.display = 'flex';
+  });
+  document.getElementById('cancel-add').addEventListener('click', closeAddForm);
+  document.getElementById('confirm-add').addEventListener('click', async () => {
+    const title = document.getElementById('new-title').value.trim();
+    if (!title) return;
+    const icon = document.getElementById('new-emoji').value.trim() || '🎯';
+    const habit = { id: 'custom_' + Date.now(), icon, title, type: newType, builtin: false };
+    if (newType === 'counter'){
+      habit.goal = Math.max(1, parseInt(document.getElementById('new-goal').value) || 1);
+      habit.unit = document.getElementById('new-unit').value.trim() || 'veces';
+      habit.step = 1;
+    }
+    habits.push(habit);
+    await saveHabits(habits);
+    closeAddForm();
+    renderHabits(); renderTrail();
+  });
+}
+function closeAddForm(){
+  document.getElementById('add-form-holder').innerHTML = '';
+  document.getElementById('add-card').style.display = 'block';
+}
+document.getElementById('add-card').addEventListener('click', showAddForm);
+document.getElementById('edit-toggle').addEventListener('click', () => {
+  editMode = !editMode;
+  document.getElementById('edit-toggle').classList.toggle('active', editMode);
+  document.getElementById('edit-toggle').textContent = editMode ? '✓ Listo' : '✎ Editar';
+  renderHabits();
+});
+
+/* ---------- Streak + weekly strip ---------- */
+async function renderStreakAndWeek(){
+  const days = [];
+  for (let i = 6; i >= 0; i--){
+    const data = i === 0 ? today.data : await loadDay(dateKeyOffset(i));
+    days.push({ data, offset: i });
+  }
+  let streak = 0;
+  let startOffset = isComplete(today.data) ? 0 : 1;
+  for (let i = startOffset; i < 60; i++){
+    const data = i === 0 ? today.data : await loadDay(dateKeyOffset(i));
+    if (isComplete(data)) streak++; else break;
+  }
+  document.getElementById('streak-num').textContent = streak;
+
+  const dayNames = ['D','L','M','M','J','V','S'];
+  document.getElementById('week-row').innerHTML = days.map(({data, offset}) => {
+    const d = new Date(); d.setDate(d.getDate() - offset);
+    const complete = isComplete(data);
+    const fill = complete ? '#e3a344' : '#303c4c';
+    const stroke = offset === 0 ? '#6fa8c7' : 'none';
+    return `<div class="day-col">
+      <svg class="peak" viewBox="0 0 26 22"><polygon points="13,2 24,20 2,20" fill="${fill}" stroke="${stroke}" stroke-width="2"/></svg>
+      <span class="day-name">${dayNames[d.getDay()]}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ================= Tabs ================= */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.getAttribute('data-tab')).classList.add('active');
+    document.getElementById('edit-toggle').style.display = btn.getAttribute('data-tab') === 'hoy' ? 'block' : 'none';
+    const titles = { hoy: 'Tus metas de hoy', actividad: 'Tu actividad', cumbres: 'Cumbres de Mendoza', progreso: 'Tu progreso' };
+    document.getElementById('page-title').textContent = titles[btn.getAttribute('data-tab')];
+  });
+});
+
+/* ================= Sport meta ================= */
+const SESSIONS_KEY = 'sessions:list';
+const ROUTINES_KEY = 'routines:list';
+const GOALS_KEY = 'goals:weekly';
+let sessions = [];
+let routines = [];
+let goals = { weeklyKm: 20, weeklyElevation: 500, weeklySessions: 3 };
+let routineFilter = 'all';
+
+const sportMeta = {
+  running:  { icon: '🏃', label: 'Running',       color: 'var(--sky)'   },
+  trail:    { icon: '⛰️', label: 'Trail running',  color: 'var(--clay)'  },
+  trekking: { icon: '🥾', label: 'Trekking',       color: 'var(--moss)'  },
+  multi:    { icon: '🏋️', label: 'Multideporte',   color: 'var(--amber)' },
+  otro:     { icon: '⭐', label: 'Otro',           color: 'var(--text-muted)' },
+};
+
+function pad2(n){ return n < 10 ? '0'+n : ''+n; }
+function todayISO(){ const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+function mondayOf(d){
+  const day = d.getDay();
+  const diff = (day === 0 ? -6 : 1 - day);
+  const m = new Date(d);
+  m.setDate(d.getDate() + diff);
+  m.setHours(0,0,0,0);
+  return m;
+}
+function weekKeyFromDate(d){ const m = mondayOf(d); return `${m.getFullYear()}-${pad2(m.getMonth()+1)}-${pad2(m.getDate())}`; }
+function parseISO(key){ const [y,mo,da] = key.split('-').map(Number); return new Date(y, mo-1, da); }
+
+/* ---------- persistence ---------- */
+async function loadSessions(){
+  try { const res = await window.storage.get(nsKey(SESSIONS_KEY), false); if (res && res.value) return JSON.parse(res.value); }
+  catch(e){ /* none yet */ }
+  return [];
+}
+async function saveSessions(list){
+  try { await window.storage.set(nsKey(SESSIONS_KEY), JSON.stringify(list), false); }
+  catch(e){ console.error('Error al guardar sesiones', e); }
+}
+function defaultRoutines(){
+  return [
+    { id: 'r1', sport: 'running', title: 'Series en pista', builtin: true, exercises: [
+      'Entrada en calor: 10 min trote suave + movilidad',
+      'Series: 8 x 400m fuerte, 90s trote suave de recuperación',
+      'Vuelta a la calma: 10 min trote regenerativo + estiramientos'
+    ]},
+    { id: 'r2', sport: 'running', title: 'Rodaje suave', builtin: true, exercises: [
+      'Rodaje continuo: 45 min a ritmo cómodo, zona 2'
+    ]},
+    { id: 'r3', sport: 'running', title: 'Fartlek 30/30', builtin: true, exercises: [
+      'Entrada en calor: 10 min',
+      'Bloque: 12 x (30s fuerte / 30s suave)',
+      'Vuelta a la calma: 10 min trote suave'
+    ]},
+    { id: 'r4', sport: 'trail', title: 'Cuestas cortas', builtin: true, exercises: [
+      'Entrada en calor: 15 min trote suave',
+      'Repeticiones en subida: 10 x 30s fuerte, bajar trotando de recuperación',
+      'Trote suave final: 15 min'
+    ]},
+    { id: 'r5', sport: 'trail', title: 'Trail largo con desnivel', builtin: true, exercises: [
+      'Salida progresiva: primeros 20 min suave',
+      'Cuerpo principal: 90–120 min combinando subidas caminadas y bajadas técnicas',
+      'Practicar hidratación y nutrición cada 30–40 min'
+    ]},
+    { id: 'r6', sport: 'trail', title: 'Técnica de bajada', builtin: true, exercises: [
+      'Entrada en calor: 10 min trote suave',
+      'Bajadas técnicas: 6 x descensos cortos trabajando pasos rápidos y cortos',
+      'Subir caminando entre repeticiones'
+    ]},
+    { id: 'r7', sport: 'trekking', title: 'Caminata con mochila cargada', builtin: true, exercises: [
+      'Cargar mochila con 10–15% de tu peso corporal',
+      'Caminata de 60–90 min en terreno con desnivel variable',
+      'Practicar uso de bastones en subidas y bajadas'
+    ]},
+    { id: 'r8', sport: 'trekking', title: 'Ascenso progresivo', builtin: true, exercises: [
+      'Ritmo constante y sostenible desde el inicio',
+      'Pausas breves cada 20–25 min para hidratar',
+      'Foco en respiración y paso corto en tramos empinados'
+    ]},
+    { id: 'r9', sport: 'trekking', title: 'Equilibrio en terreno irregular', builtin: true, exercises: [
+      'Calentamiento: 5 min de movilidad de tobillos y cadera',
+      'Circuito: 20 min caminando sobre piedras, raíces y pendientes',
+      'Equilibrio en un pie: 3 x 30s por pierna'
+    ]},
+    { id: 'r10', sport: 'multi', title: 'Full body funcional', builtin: true, exercises: [
+      'Sentadillas: 3 x 15',
+      'Zancadas: 3 x 12 por pierna',
+      'Plancha: 3 x 40s',
+      'Puente de glúteos: 3 x 15'
+    ]},
+    { id: 'r11', sport: 'multi', title: 'Core y estabilidad', builtin: true, exercises: [
+      'Plancha lateral: 3 x 30s por lado',
+      'Dead bug: 3 x 10 por lado',
+      'Bird dog: 3 x 10 por lado',
+      'Superman: 3 x 15'
+    ]},
+    { id: 'r12', sport: 'multi', title: 'Piernas y fuerza general', builtin: true, exercises: [
+      'Sentadilla búlgara: 3 x 10 por pierna',
+      'Peso muerto a una pierna: 3 x 10 por pierna',
+      'Elevación de talones: 3 x 20',
+      'Hip thrust: 3 x 15'
+    ]},
+  ];
+}
+async function loadRoutines(){
+  try { const res = await window.storage.get(nsKey(ROUTINES_KEY), false); if (res && res.value) return JSON.parse(res.value); }
+  catch(e){ /* not found yet */ }
+  const d = defaultRoutines();
+  await saveRoutines(d);
+  return d;
+}
+async function saveRoutines(list){
+  try { await window.storage.set(nsKey(ROUTINES_KEY), JSON.stringify(list), false); }
+  catch(e){ console.error('Error al guardar rutinas', e); }
+}
+async function loadGoals(){
+  try { const res = await window.storage.get(nsKey(GOALS_KEY), false); if (res && res.value) return JSON.parse(res.value); }
+  catch(e){ /* not found yet */ }
+  return { weeklyKm: 20, weeklyElevation: 500, weeklySessions: 3 };
+}
+async function saveGoals(g){
+  try { await window.storage.set(nsKey(GOALS_KEY), JSON.stringify(g), false); }
+  catch(e){ console.error('Error al guardar metas', e); }
+}
+
+/* ================= Sessions ================= */
+function sessionsThisWeek(){
+  const wk = weekKeyFromDate(new Date());
+  return sessions.filter(s => weekKeyFromDate(parseISO(s.date)) === wk);
+}
+function renderActivityStats(){
+  const wk = sessionsThisWeek();
+  const km = wk.reduce((a,s) => a + (s.distanceKm || 0), 0);
+  const elev = wk.reduce((a,s) => a + (s.elevationM || 0), 0);
+  document.getElementById('stat-week-km').textContent = km % 1 === 0 ? km : km.toFixed(1);
+  document.getElementById('stat-week-elev').textContent = elev;
+  document.getElementById('stat-week-sessions').textContent = wk.length;
+}
+function renderSessions(){
+  const list = document.getElementById('sessions-list');
+  const sorted = [...sessions].sort((a,b) => (a.date === b.date ? b.id - a.id : (a.date < b.date ? 1 : -1)));
+  const shown = sorted.slice(0, 15);
+  if (shown.length === 0){
+    list.innerHTML = '<div class="empty-hint">Todavía no registraste ninguna actividad. ¡Sumá la primera!</div>';
+    return;
+  }
+  list.innerHTML = shown.map(s => {
+    const m = sportMeta[s.sport] || sportMeta.otro;
+    const parts = [];
+    const d = parseISO(s.date);
+    parts.push(d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }));
+    if (s.distanceKm) parts.push(`${s.distanceKm} km`);
+    if (s.durationMin) parts.push(`${s.durationMin} min`);
+    if (s.elevationM) parts.push(`+${s.elevationM} m`);
+    if (s.rpe) parts.push(`RPE ${s.rpe}`);
+    return `<div class="session-card">
+      <div class="session-icon" style="color:${m.color}; background:var(--surface-2);">${m.icon}</div>
+      <div class="session-body">
+        <p class="session-title">${m.label}</p>
+        <p class="session-sub">${parts.join(' · ')}</p>
+        ${s.notes ? `<p class="session-notes">${s.notes}</p>` : ''}
+      </div>
+      <button class="del-btn" style="display:flex;" data-del-session="${s.id}">×</button>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('[data-del-session]').forEach(el => {
+    el.addEventListener('click', async () => {
+      const id = Number(el.getAttribute('data-del-session'));
+      sessions = sessions.filter(s => s.id !== id);
+      await saveSessions(sessions);
+      renderSessions(); renderActivityStats(); renderGoals(); renderKmChart();
+    });
+  });
+}
+
+function showLogForm(){
+  document.getElementById('log-add-card').style.display = 'none';
+  const holder = document.getElementById('log-form-holder');
+  holder.innerHTML = `
+    <div class="add-form">
+      <div class="row">
+        <select id="log-sport" style="flex:1; margin-top:0;">
+          <option value="running">🏃 Running</option>
+          <option value="trail">⛰️ Trail running</option>
+          <option value="trekking">🥾 Trekking</option>
+          <option value="multi">🏋️ Multideporte</option>
+          <option value="otro">⭐ Otro</option>
+        </select>
+        <input type="date" id="log-date" style="flex:1;">
+      </div>
+      <div class="row">
+        <input type="number" id="log-distance" placeholder="Distancia (km)" min="0" step="0.1" style="flex:1;">
+        <input type="number" id="log-duration" placeholder="Duración (min)" min="0" step="1" style="flex:1;">
+      </div>
+      <div class="row">
+        <input type="number" id="log-elevation" placeholder="Desnivel (m)" min="0" step="10" style="flex:1;">
+        <select id="log-rpe" style="flex:1; margin-top:0;">
+          <option value="">Esfuerzo (RPE)</option>
+          <option value="1">1 · Muy suave</option>
+          <option value="2">2 · Suave</option>
+          <option value="3">3 · Moderado</option>
+          <option value="4">4 · Duro</option>
+          <option value="5">5 · Muy duro</option>
+        </select>
+      </div>
+      <input type="text" id="log-notes" placeholder="Notas (opcional)">
+      <div class="form-actions">
+        <button class="btn-secondary" id="log-cancel" type="button">Cancelar</button>
+        <button class="btn-primary" id="log-confirm" type="button">Guardar</button>
+      </div>
+    </div>`;
+  document.getElementById('log-date').value = todayISO();
+  document.getElementById('log-cancel').addEventListener('click', closeLogForm);
+  document.getElementById('log-confirm').addEventListener('click', async () => {
+    const sport = document.getElementById('log-sport').value;
+    const date = document.getElementById('log-date').value || todayISO();
+    const distanceKm = parseFloat(document.getElementById('log-distance').value) || 0;
+    const durationMin = parseInt(document.getElementById('log-duration').value) || 0;
+    const elevationM = parseInt(document.getElementById('log-elevation').value) || 0;
+    const rpe = document.getElementById('log-rpe').value ? parseInt(document.getElementById('log-rpe').value) : null;
+    const notes = document.getElementById('log-notes').value.trim();
+    sessions.push({ id: Date.now(), sport, date, distanceKm, durationMin, elevationM, rpe, notes });
+    await saveSessions(sessions);
+    closeLogForm();
+    renderSessions(); renderActivityStats(); renderGoals(); renderKmChart();
+  });
+}
+function closeLogForm(){
+  document.getElementById('log-form-holder').innerHTML = '';
+  document.getElementById('log-add-card').style.display = 'block';
+}
+document.getElementById('log-add-card').addEventListener('click', showLogForm);
+
+/* ================= Routines ================= */
+function renderRoutines(){
+  const list = document.getElementById('routines-list');
+  const filtered = routineFilter === 'all' ? routines : routines.filter(r => r.sport === routineFilter);
+  if (filtered.length === 0){
+    list.innerHTML = '<div class="empty-hint">No hay rutinas en esta categoría todavía.</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(r => {
+    const m = sportMeta[r.sport] || sportMeta.otro;
+    return `<div class="routine-card" data-rid="${r.id}">
+      <div class="routine-head" data-toggle-routine="${r.id}">
+        <div class="routine-icon" style="color:${m.color};">${m.icon}</div>
+        <div>
+          <p class="routine-title">${r.title}</p>
+          <p class="routine-sub">${m.label} · ${r.exercises.length} ${r.exercises.length === 1 ? 'paso' : 'pasos'}</p>
+        </div>
+        <span class="routine-caret" id="caret-${r.id}">▾</span>
+      </div>
+      <div class="routine-body" id="body-${r.id}">
+        ${r.exercises.map(ex => `<div class="exercise-row">${ex}</div>`).join('')}
+        <div class="routine-actions">
+          <button class="btn-primary" data-log-routine="${r.id}" type="button">Registrar como hecha</button>
+          ${r.builtin ? '' : `<button class="btn-secondary" data-del-routine="${r.id}" type="button">Eliminar</button>`}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('[data-toggle-routine]').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.getAttribute('data-toggle-routine');
+      document.getElementById('body-' + id).classList.toggle('open');
+      document.getElementById('caret-' + id).classList.toggle('open');
+    });
+  });
+  list.querySelectorAll('[data-log-routine]').forEach(el => {
+    el.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = el.getAttribute('data-log-routine');
+      const r = routines.find(rt => rt.id === id);
+      if (!r) return;
+      sessions.push({ id: Date.now(), sport: r.sport, date: todayISO(), distanceKm: 0, durationMin: 0, elevationM: 0, rpe: null, notes: r.title });
+      await saveSessions(sessions);
+      renderSessions(); renderActivityStats(); renderGoals(); renderKmChart();
+      el.textContent = '✓ Registrada';
+      setTimeout(() => { el.textContent = 'Registrar como hecha'; }, 1500);
+    });
+  });
+  list.querySelectorAll('[data-del-routine]').forEach(el => {
+    el.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = el.getAttribute('data-del-routine');
+      routines = routines.filter(r => r.id !== id);
+      await saveRoutines(routines);
+      renderRoutines();
+    });
+  });
+}
+document.getElementById('routine-chips').addEventListener('click', (e) => {
+  const btn = e.target.closest('.chip');
+  if (!btn) return;
+  routineFilter = btn.getAttribute('data-sport');
+  document.querySelectorAll('#routine-chips .chip').forEach(c => c.classList.remove('sel'));
+  btn.classList.add('sel');
+  renderRoutines();
+});
+
+function showRoutineForm(){
+  document.getElementById('routine-add-card').style.display = 'none';
+  const holder = document.getElementById('routine-form-holder');
+  holder.innerHTML = `
+    <div class="add-form">
+      <div class="row">
+        <select id="new-routine-sport" style="flex:1; margin-top:0;">
+          <option value="running">🏃 Running</option>
+          <option value="trail">⛰️ Trail running</option>
+          <option value="trekking">🥾 Trekking</option>
+          <option value="multi">🏋️ Multideporte</option>
+        </select>
+      </div>
+      <input type="text" id="new-routine-title" placeholder="Nombre de la rutina">
+      <textarea id="new-routine-exercises" placeholder="Un paso o ejercicio por línea. Ej:&#10;10 min trote suave&#10;6 x 200m fuerte&#10;10 min vuelta a la calma"></textarea>
+      <div class="form-actions">
+        <button class="btn-secondary" id="routine-cancel" type="button">Cancelar</button>
+        <button class="btn-primary" id="routine-confirm" type="button">Crear rutina</button>
+      </div>
+    </div>`;
+  document.getElementById('routine-cancel').addEventListener('click', closeRoutineForm);
+  document.getElementById('routine-confirm').addEventListener('click', async () => {
+    const title = document.getElementById('new-routine-title').value.trim();
+    const sport = document.getElementById('new-routine-sport').value;
+    const exercises = document.getElementById('new-routine-exercises').value
+      .split('\n').map(s => s.trim()).filter(Boolean);
+    if (!title || exercises.length === 0) return;
+    routines.push({ id: 'custom_' + Date.now(), sport, title, exercises, builtin: false });
+    await saveRoutines(routines);
+    closeRoutineForm();
+    routineFilter = 'all';
+    document.querySelectorAll('#routine-chips .chip').forEach(c => c.classList.remove('sel'));
+    document.querySelector('#routine-chips .chip[data-sport="all"]').classList.add('sel');
+    renderRoutines();
+  });
+}
+function closeRoutineForm(){
+  document.getElementById('routine-form-holder').innerHTML = '';
+  document.getElementById('routine-add-card').style.display = 'block';
+}
+document.getElementById('routine-add-card').addEventListener('click', showRoutineForm);
+
+/* ================= Goals (Progreso tab) ================= */
+function renderGoals(){
+  const wk = sessionsThisWeek();
+  const km = wk.reduce((a,s) => a + (s.distanceKm || 0), 0);
+  const elev = wk.reduce((a,s) => a + (s.elevationM || 0), 0);
+  const count = wk.length;
+  const card = document.getElementById('goal-card');
+  const items = [
+    { label: 'Distancia', val: km, goal: goals.weeklyKm, unit: 'km', key: 'weeklyKm' },
+    { label: 'Desnivel',  val: elev, goal: goals.weeklyElevation, unit: 'm', key: 'weeklyElevation' },
+    { label: 'Sesiones',  val: count, goal: goals.weeklySessions, unit: '', key: 'weeklySessions' },
+  ];
+  card.innerHTML = items.map(it => {
+    const pct = it.goal > 0 ? Math.min(100, Math.round((it.val / it.goal) * 100)) : 0;
+    return `<div class="goal-item">
+      <div class="goal-top">
+        <span class="lbl">${it.label}</span>
+        <span class="val">${it.val % 1 === 0 ? it.val : it.val.toFixed(1)} / ${it.goal} ${it.unit}</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background: var(--amber);"></div></div>
+    </div>`;
+  }).join('') + `
+    <div class="goal-edit-row">
+      <div style="flex:1;"><label>Meta km/sem</label><input type="number" id="goal-km" value="${goals.weeklyKm}" min="0" style="width:100%;"></div>
+      <div style="flex:1;"><label>Meta desnivel</label><input type="number" id="goal-elev" value="${goals.weeklyElevation}" min="0" style="width:100%;"></div>
+      <div style="flex:1;"><label>Meta sesiones</label><input type="number" id="goal-sessions" value="${goals.weeklySessions}" min="0" style="width:100%;"></div>
+    </div>
+    <div class="form-actions" style="margin-top:10px;">
+      <button class="btn-primary" id="goal-save" type="button">Guardar metas</button>
+    </div>`;
+  document.getElementById('goal-save').addEventListener('click', async () => {
+    goals = {
+      weeklyKm: Math.max(0, parseFloat(document.getElementById('goal-km').value) || 0),
+      weeklyElevation: Math.max(0, parseInt(document.getElementById('goal-elev').value) || 0),
+      weeklySessions: Math.max(0, parseInt(document.getElementById('goal-sessions').value) || 0),
+    };
+    await saveGoals(goals);
+    renderGoals();
+  });
+}
+
+/* ---------- Distance chart: mountain skyline (weekly / historical) ---------- */
+let chartMode = 'week';
+
+function computeWeeksData(n){
+  const weeks = [];
+  const thisMonday = mondayOf(new Date());
+  for (let i = n - 1; i >= 0; i--){
+    const m = new Date(thisMonday); m.setDate(thisMonday.getDate() - i * 7);
+    const key = weekKeyFromDate(m);
+    const km = sessions.filter(s => weekKeyFromDate(parseISO(s.date)) === key)
+                        .reduce((a,s) => a + (s.distanceKm || 0), 0);
+    weeks.push({ label: `${m.getDate()}/${m.getMonth()+1}`, km, current: i === 0 });
+  }
+  return weeks;
+}
+
+function computeMonthsData(){
+  const now = new Date();
+  if (sessions.length === 0){
+    const label = now.toLocaleDateString('es-AR', { month: 'short' }).replace('.', '');
+    return [{ label: label.charAt(0).toUpperCase() + label.slice(1), km: 0, current: true }];
+  }
+  const dates = sessions.map(s => parseISO(s.date));
+  const minD = new Date(Math.min(...dates));
+  let y = minD.getFullYear(), mo = minD.getMonth();
+  const months = [];
+  while (y < now.getFullYear() || (y === now.getFullYear() && mo <= now.getMonth())){
+    const km = sessions.filter(s => { const d = parseISO(s.date); return d.getFullYear() === y && d.getMonth() === mo; })
+                        .reduce((a,s) => a + (s.distanceKm || 0), 0);
+    const raw = new Date(y, mo, 1).toLocaleDateString('es-AR', { month: 'short' }).replace('.', '');
+    const label = raw.charAt(0).toUpperCase() + raw.slice(1);
+    months.push({ label, km, current: y === now.getFullYear() && mo === now.getMonth() });
+    mo++; if (mo > 11){ mo = 0; y++; }
+  }
+  return months.slice(-18);
+}
+
+function renderKmChart(){
+  const svg = document.getElementById('km-chart');
+  const data = chartMode === 'week' ? computeWeeksData(8) : computeMonthsData();
+  const max = Math.max(1, ...data.map(w => w.km));
+  const W = 400, H = 160, padL = 10, padR = 10, padB = 22, padT = 26;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const n = data.length;
+  const stepX = n > 1 ? chartW / (n - 1) : 0;
+  const baseY = padT + chartH;
+
+  const points = data.map((w, i) => ({
+    x: padL + (n > 1 ? i * stepX : chartW / 2),
+    y: padT + (chartH - (w.km / max) * chartH),
+    ...w,
+  }));
+
+  let linePath = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  for (let i = 1; i < points.length; i++) linePath += ` L ${points[i].x.toFixed(1)} ${points[i].y.toFixed(1)}`;
+  const areaPath = `${linePath} L ${points[n-1].x.toFixed(1)} ${baseY} L ${points[0].x.toFixed(1)} ${baseY} Z`;
+
+  let svgContent = `
+    <defs>
+      <linearGradient id="peakFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e3a344" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#e3a344" stop-opacity="0.03"/>
+      </linearGradient>
+    </defs>
+    <path d="M 0 ${baseY} L 55 ${padT + chartH * 0.32} L 108 ${baseY} Z" fill="#1b2229" opacity="0.55"/>
+    <path d="M 78 ${baseY} L 165 ${padT + chartH * 0.12} L 250 ${baseY} Z" fill="#1b2229" opacity="0.4"/>
+    <path d="M 215 ${baseY} L 305 ${padT + chartH * 0.4} L 400 ${baseY} Z" fill="#1b2229" opacity="0.55"/>
+    <line x1="${padL}" y1="${baseY}" x2="${W - padR}" y2="${baseY}" stroke="#2a3340" stroke-width="1"/>
+    <path d="${areaPath}" fill="url(#peakFill)"/>
+    <path d="${linePath}" fill="none" stroke="#e3a344" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  `;
+
+  points.forEach(p => {
+    const isPeak = max > 0 && p.km === max;
+    const r = p.current ? 3.6 : (isPeak ? 3 : 2.2);
+    const fill = p.current ? '#e3a344' : '#141a22';
+    const stroke = (p.current || isPeak) ? '#e3a344' : '#5a6270';
+    svgContent += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="1.3"/>`;
+    if (p.km > 0){
+      svgContent += `<text x="${p.x.toFixed(1)}" y="${(p.y - 8).toFixed(1)}" text-anchor="middle" font-size="8.5" font-family="JetBrains Mono, monospace" fill="#c7cdd6">${p.km % 1 === 0 ? p.km : p.km.toFixed(1)}</text>`;
+    }
+    svgContent += `<text x="${p.x.toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="8" font-family="JetBrains Mono, monospace" fill="#5a6270">${p.label}</text>`;
+  });
+
+  svg.innerHTML = svgContent;
+}
+
+document.getElementById('chart-mode-chips').addEventListener('click', (e) => {
+  const btn = e.target.closest('.chip');
+  if (!btn) return;
+  chartMode = btn.getAttribute('data-mode');
+  document.querySelectorAll('#chart-mode-chips .chip').forEach(c => c.classList.remove('sel'));
+  btn.classList.add('sel');
+  renderKmChart();
+});
+
+/* ---------- Habit consistency heatmap ---------- */
+async function renderHeatmap(){
+  const grid = document.getElementById('heatmap-grid');
+  const todayD = new Date();
+  const start = mondayOf(todayD);
+  start.setDate(start.getDate() - 28); // 5 weeks total including current
+  const cells = [];
+  for (let i = 0; i < 35; i++){
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    d.setHours(0,0,0,0);
+    const key = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+    const isFuture = d > todayD;
+    cells.push({ key, isFuture });
+  }
+  const dataArr = await Promise.all(cells.map(c => c.isFuture ? Promise.resolve(null) : loadDay(c.key)));
+  grid.innerHTML = cells.map((c, i) => {
+    if (c.isFuture) return `<div class="heat-cell" style="opacity:.25;"></div>`;
+    const data = dataArr[i] || {};
+    const done = countDone(data);
+    let cls = '';
+    if (habits.length > 0 && done === habits.length && done > 0) cls = 'complete';
+    else if (done > 0) cls = 'partial';
+    return `<div class="heat-cell ${cls}" title="${c.key}: ${done}/${habits.length}"></div>`;
+  }).join('');
+}
+
+/* ================= Cumbres de Mendoza ================= */
+const PEAKS_PROGRESS_KEY = 'peaks:progress';
+const PEAKS_CUSTOM_KEY = 'peaks:custom';
+let peaksProgress = {};
+let customPeaks = [];
+let selectedPeakId = null;
+
+const diffMeta = {
+  facil:    { label: 'Fácil',     color: 'var(--moss)'  },
+  moderada: { label: 'Moderada',  color: 'var(--sky)'   },
+  dificil:  { label: 'Difícil',   color: 'var(--clay)'  },
+  extrema:  { label: 'Extrema',   color: 'var(--danger)'},
+};
+
+/* medal tiers: bronze (fácil) → plata (moderada) → cobre (difícil) → oro (extrema) */
+const medalPalette = {
+  facil:    { dark: '#6b4a2f', mid: '#b0764a', light: '#e8c9a0' },
+  moderada: { dark: '#5f6772', mid: '#a8b0bb', light: '#e8ecef' },
+  dificil:  { dark: '#8a4f3d', mid: '#c4735a', light: '#eccabe' },
+  extrema:  { dark: '#8a6a1f', mid: '#e3a344', light: '#fbe7b8' },
+};
+
+function starPathD(cx, cy, rOuter, rInner, points, rotationDeg){
+  let d = '';
+  const step = Math.PI / points;
+  for (let i = 0; i < points * 2; i++){
+    const r = i % 2 === 0 ? rOuter : rInner;
+    const angle = (rotationDeg * Math.PI / 180) + i * step;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    d += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1) + ' ';
+  }
+  return d + 'Z';
+}
+function petalPaths(cx, cy, rBase, rTip, count, widthDeg, fill){
+  let out = '';
+  for (let i = 0; i < count; i++){
+    const angle = (i * 360 / count - 90) * Math.PI / 180;
+    const a1 = angle - (widthDeg / 2) * Math.PI / 180;
+    const a2 = angle + (widthDeg / 2) * Math.PI / 180;
+    const x0 = cx + rBase * Math.cos(a1), y0 = cy + rBase * Math.sin(a1);
+    const x1 = cx + rTip * Math.cos(angle), y1 = cy + rTip * Math.sin(angle);
+    const x2 = cx + rBase * Math.cos(a2), y2 = cy + rBase * Math.sin(a2);
+    out += `<path d="M${x0.toFixed(1)} ${y0.toFixed(1)} L${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)} Z" fill="${fill}"/>`;
+  }
+  return out;
+}
+
+function typeIconSvg(type, size){
+  size = size || 20;
+  const h = Math.round(size * 0.83);
+  if (type === 'quebrada'){
+    return `<svg viewBox="0 0 24 20" width="${size}" height="${h}">
+      <path d="M2 20 L2 6 L8 1 L8 20 Z" fill="#5a6270"/>
+      <path d="M22 20 L22 6 L16 1 L16 20 Z" fill="#3f4854"/>
+      <path d="M8 20 Q12 15 16 20" stroke="#6fa8c7" stroke-width="1.4" fill="none" opacity="0.8"/>
+    </svg>`;
+  }
+  return `<svg viewBox="0 0 24 20" width="${size}" height="${h}">
+    <path d="M2 19 L11 3 L15 9 L18 5 L22 19 Z" fill="#5a6270"/>
+  </svg>`;
+}
+
+function peakMedalSvg(p, size){
+  size = size || 26;
+  const pal = medalPalette[p.difficulty] || medalPalette.moderada;
+  const cx = 14, cy = 18.5;
+  const isVolcano = p.id === 'maipo' || p.id === 'tupungato';
+  const isCrown = p.id === 'aconcagua';
+  const isQuebrada = p.type === 'quebrada';
+  const snowy = !isQuebrada && (p.altitude || 0) >= 4500;
+
+  // ribbon tails
+  let svg = `<svg viewBox="0 0 28 32" width="${size}" height="${size}">`;
+  svg += `<path d="M8 3 L14 10.5 L11 13 L5.5 5 Z" fill="${pal.dark}"/>`;
+  svg += `<path d="M20 3 L14 10.5 L17 13 L22.5 5 Z" fill="${pal.dark}"/>`;
+
+  // disk shape by difficulty
+  if (p.difficulty === 'facil'){
+    svg += `<circle cx="${cx}" cy="${cy}" r="8.6" fill="${pal.mid}" stroke="${pal.dark}" stroke-width="1.2"/>`;
+    svg += `<circle cx="${cx}" cy="${cy}" r="5.8" fill="${pal.light}" opacity="0.4"/>`;
+  } else if (p.difficulty === 'moderada'){
+    svg += `<path d="M14 9.8 L21 12.3 L21 18.8 C21 23.8 17.6 26.8 14 28.3 C10.4 26.8 7 23.8 7 18.8 L7 12.3 Z" fill="${pal.mid}" stroke="${pal.dark}" stroke-width="1.2"/>`;
+  } else if (p.difficulty === 'dificil'){
+    svg += `<path d="${starPathD(cx, cy, 9, 4.4, 5, -90)}" fill="${pal.mid}" stroke="${pal.dark}" stroke-width="1.1"/>`;
+  } else {
+    svg += petalPaths(cx, cy, 6.6, 9.6, 10, 22, pal.mid);
+    svg += `<circle cx="${cx}" cy="${cy}" r="7" fill="${pal.mid}" stroke="${pal.dark}" stroke-width="1.1"/>`;
+    svg += `<circle cx="${cx}" cy="${cy}" r="4.8" fill="${pal.light}" opacity="0.45"/>`;
+  }
+
+  // center glyph: mountain (+ snow / volcano glow / summit sparkle) or canyon for quebradas
+  const gy = p.difficulty === 'moderada' ? cy + 1 : cy;
+  if (isQuebrada){
+    svg += `<path d="M${cx-5.5} ${gy+4.8} L${cx-5.5} ${gy-2} L${cx-1.6} ${gy-4.6} L${cx-1.6} ${gy+4.8} Z" fill="#232a35"/>`;
+    svg += `<path d="M${cx+5.5} ${gy+4.8} L${cx+5.5} ${gy-2} L${cx+1.6} ${gy-4.6} L${cx+1.6} ${gy+4.8} Z" fill="#2f3844"/>`;
+    svg += `<path d="M${cx-1.6} ${gy+4.8} Q${cx} ${gy+2.3} ${cx+1.6} ${gy+4.8}" stroke="#dfe4f2" stroke-width="1" fill="none" opacity="0.8"/>`;
+  } else {
+  svg += `<path d="M${cx-5.5} ${gy+4.5} L${cx} ${gy-4} L${cx+5.5} ${gy+4.5} Z" fill="#232a35"/>`;
+  if (snowy){
+    svg += `<path d="M${cx-2.1} ${gy-0.6} L${cx} ${gy-4} L${cx+2.1} ${gy-0.6} L${cx+0.9} ${gy-0.4} L${cx} ${gy-1.6} L${cx-0.9} ${gy-0.4} Z" fill="#f4f6f8"/>`;
+  }
+  if (isVolcano){
+    svg += `<circle cx="${cx}" cy="${gy-4}" r="2.2" fill="#e35c3a" opacity="0.35"/>`;
+    svg += `<circle cx="${cx}" cy="${gy-4}" r="0.9" fill="#ffb066"/>`;
+  }
+  if (isCrown){
+    svg += `<path d="M${cx} ${gy-9} L${cx+0.8} ${gy-6.6} L${cx+3.2} ${gy-6.6} L${cx+1.2} ${gy-5.2} L${cx+2} ${gy-2.8} L${cx} ${gy-4.3} L${cx-2} ${gy-2.8} L${cx-1.2} ${gy-5.2} L${cx-3.2} ${gy-6.6} L${cx-0.8} ${gy-6.6} Z" fill="#fff6df"/>`;
+  }
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+function defaultPeaks(){
+  return [
+    { id: 'arco',        name: 'Cerro Arco',            region: 'El Challao, Las Heras',       altitude: 1675, difficulty: 'facil', type: 'cerro',
+      blurb: 'El clásico cerca de la ciudad: sendero de tierra con vistas al Challao, apto para iniciarse.', builtin: true },
+    { id: 'cocodrilo',   name: 'Cerro Cocodrilo',       region: 'Potrerillos',                  altitude: null, difficulty: 'facil', type: 'cerro',
+      blurb: 'Salida corta desde el centro de Potrerillos, con vistas al dique y al Cordón del Plata.', builtin: true },
+    { id: 'campanario',  name: 'Cerro Campanario',      region: 'La Crucesita, Luján de Cuyo',  altitude: null, difficulty: 'facil', type: 'cerro',
+      blurb: 'Un cerro accesible rodeado de vegetación, ideal para una salida corta de montaña.', builtin: true },
+    { id: 'andresito',   name: 'Cumbre Andresito',      region: 'Vallecitos, Cordón del Plata',  altitude: 3450, difficulty: 'moderada', type: 'cerro',
+      blurb: 'Cumbre panorámica de acceso desde Vallecitos, buena para aclimatar en altura.', builtin: true },
+    { id: 'franco',      name: 'Cerro Franco',          region: 'Vallecitos, Cordón del Plata',  altitude: 3900, difficulty: 'moderada', type: 'cerro',
+      blurb: 'Ascenso de un día desde la base de Vallecitos, con buenas vistas del cordón.', builtin: true },
+    { id: 'lomasblancas',name: 'Lomas Blancas',         region: 'Vallecitos, Cordón del Plata',  altitude: null, difficulty: 'moderada', type: 'cerro',
+      blurb: 'Recorrido de altura suave, clásico para entrenar antes de objetivos más grandes.', builtin: true },
+    { id: 'iluso',       name: 'Cerro Iluso',           region: 'Cordón del Plata',              altitude: 3808, difficulty: 'moderada', type: 'cerro',
+      blurb: 'Uno de los objetivos de acceso más frecuente en la zona de Vallecitos.', builtin: true },
+    { id: 'bonete',      name: 'Cerro Bonete',          region: 'Cordón del Plata',              altitude: 5004, difficulty: 'dificil', type: 'cerro',
+      blurb: 'Un cinco mil de buen acceso, usado habitualmente para aclimatar antes de Vallecitos o Plata.', builtin: true },
+    { id: 'vallecitos',  name: 'Cerro Vallecitos',      region: 'Cordón del Plata',              altitude: 5469, difficulty: 'dificil', type: 'cerro',
+      blurb: 'Uno de los 5.000 más emblemáticos de Mendoza, con refugios de altura y varias jornadas de ascenso.', builtin: true },
+    { id: 'plata',       name: 'Cerro Plata',           region: 'Cordón del Plata',              altitude: 5956, difficulty: 'extrema', type: 'cerro',
+      blurb: 'La cumbre más alta del Cordón del Plata, un objetivo serio de alta montaña.', builtin: true },
+    { id: 'maipo',       name: 'Volcán Maipo',          region: 'Laguna del Diamante, San Carlos',altitude: 5264, difficulty: 'extrema', type: 'cerro',
+      blurb: 'Volcán fronterizo junto a la Laguna del Diamante, ascenso técnico de varios días.', builtin: true },
+    { id: 'tupungato',   name: 'Volcán Tupungato',      region: 'Cordillera Frontal, Tupungato',  altitude: 6570, difficulty: 'extrema', type: 'cerro',
+      blurb: 'Uno de los seismiles más altos de Mendoza, expedición larga y exigente.', builtin: true },
+    { id: 'aconcagua',   name: 'Aconcagua',             region: 'Parque Provincial Aconcagua',    altitude: 6961, difficulty: 'extrema', type: 'cerro',
+      blurb: 'El techo de América. La cumbre más alta de Mendoza y de todo el continente.', builtin: true },
+    /* --- Quebradas --- */
+    { id: 'matienzo',    name: 'Quebrada de Matienzo',  region: 'Las Cuevas, Parque Prov. Aconcagua', altitude: 3800, difficulty: 'dificil', type: 'quebrada',
+      blurb: 'Antigua Quebrada de las Bóvedas, junto al límite con Chile. Caminatas de varias jornadas con vistas al Aconcagua y al cerro Juncal.', builtin: true },
+    { id: 'villavicencio',name: 'Quebrada de Villavicencio', region: 'Reserva Villavicencio, Las Heras', altitude: null, difficulty: 'facil', type: 'quebrada',
+      blurb: 'Recorrido tranquilo dentro de un ecosistema protegido, con flora autóctona y fauna de montaña.', builtin: true },
+    { id: 'atuel',       name: 'Cañón del Atuel',       region: 'San Rafael',                    altitude: null, difficulty: 'moderada', type: 'quebrada',
+      blurb: 'Paredones de roca rojiza junto al río Atuel, uno de los circuitos más elegidos del sur mendocino.', builtin: true },
+    { id: 'vacas',       name: 'Quebrada de las Vacas', region: 'Punta de Vacas, Ruta 7',         altitude: 2400, difficulty: 'moderada', type: 'quebrada',
+      blurb: 'Punto de entrada arriero donde el río Las Vacas se junta con el río Mendoza, camino a la alta montaña.', builtin: true },
+  ];
+}
+
+async function loadPeaksProgress(){
+  try { const res = await window.storage.get(nsKey(PEAKS_PROGRESS_KEY), false); if (res && res.value) return JSON.parse(res.value); }
+  catch(e){ /* not found yet */ }
+  return {};
+}
+async function savePeaksProgress(){
+  try { await window.storage.set(nsKey(PEAKS_PROGRESS_KEY), JSON.stringify(peaksProgress), false); }
+  catch(e){ console.error('Error al guardar cumbres', e); }
+}
+async function loadCustomPeaks(){
+  try { const res = await window.storage.get(nsKey(PEAKS_CUSTOM_KEY), false); if (res && res.value) return JSON.parse(res.value); }
+  catch(e){ /* not found yet */ }
+  return [];
+}
+async function saveCustomPeaks(){
+  try { await window.storage.set(nsKey(PEAKS_CUSTOM_KEY), JSON.stringify(customPeaks), false); }
+  catch(e){ console.error('Error al guardar cerros propios', e); }
+}
+function allPeaks(){ return defaultPeaks().concat(customPeaks); }
+
+async function savePeakPhoto(id, dataUrl){
+  try { await window.storage.set(nsKey('peak-photo:' + id), dataUrl, false); }
+  catch(e){ console.error('Error al guardar foto', e); }
+}
+async function loadPeakPhoto(id){
+  try { const res = await window.storage.get(nsKey('peak-photo:' + id), false); if (res && res.value) return res.value; }
+  catch(e){ /* none */ }
+  return null;
+}
+async function deletePeakPhoto(id){
+  try { await window.storage.delete(nsKey('peak-photo:' + id), false); } catch(e){ /* none to delete */ }
+}
+
+function compressImage(file, maxW){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.6));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPeaksStats(){
+  const peaks = allPeaks();
+  const climbedIds = Object.keys(peaksProgress).filter(id => peaksProgress[id] && peaksProgress[id].climbed);
+  const climbedPeaks = peaks.filter(p => climbedIds.includes(p.id));
+  const meters = climbedPeaks.reduce((a,p) => a + (p.altitude || 0), 0);
+  document.getElementById('stat-peaks-climbed').textContent = climbedPeaks.length;
+  document.getElementById('stat-peaks-total').textContent = peaks.length;
+  document.getElementById('stat-peaks-meters').textContent = meters.toLocaleString('es-AR');
+}
+
+let peaksFilter = 'all';
+
+function renderPeaksGrid(){
+  const grid = document.getElementById('peaks-grid');
+  const peaks = allPeaks().filter(p => peaksFilter === 'all' || p.type === peaksFilter);
+  if (peaks.length === 0){
+    grid.innerHTML = '<div class="empty-hint" style="grid-column: 1 / -1;">No hay nada en esta categoría todavía.</div>';
+    return;
+  }
+  grid.innerHTML = peaks.map(p => {
+    const prog = peaksProgress[p.id];
+    const climbed = !!(prog && prog.climbed);
+    const dm = diffMeta[p.difficulty] || diffMeta.moderada;
+    return `<div class="peak-tile ${climbed ? 'climbed' : ''} ${selectedPeakId === p.id ? 'sel' : ''}" data-peak="${p.id}">
+      <div class="peak-visual">${climbed ? peakMedalSvg(p, 44) : typeIconSvg(p.type, 24)}</div>
+      <span class="peak-name">${p.name}</span>
+      <span class="peak-alt">${p.altitude ? p.altitude.toLocaleString('es-AR') + ' m' : ''}</span>
+      <span class="diff-tag" style="background:${dm.color}22; color:${dm.color};">${dm.label}</span>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.peak-tile').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.getAttribute('data-peak');
+      selectedPeakId = selectedPeakId === id ? null : id;
+      renderPeaksGrid();
+      renderPeakDetail();
+    });
+  });
+}
+
+document.getElementById('peaks-type-chips').addEventListener('click', (e) => {
+  const btn = e.target.closest('.chip');
+  if (!btn) return;
+  peaksFilter = btn.getAttribute('data-type');
+  document.querySelectorAll('#peaks-type-chips .chip').forEach(c => c.classList.remove('sel'));
+  btn.classList.add('sel');
+  renderPeaksGrid();
+});
+
+async function renderPeakDetail(){
+  const holder = document.getElementById('peak-detail-holder');
+  if (!selectedPeakId){ holder.innerHTML = ''; return; }
+  const p = allPeaks().find(pk => pk.id === selectedPeakId);
+  if (!p){ holder.innerHTML = ''; selectedPeakId = null; return; }
+  const prog = peaksProgress[p.id] || {};
+  const climbed = !!prog.climbed;
+  const dm = diffMeta[p.difficulty] || diffMeta.moderada;
+  const photo = await loadPeakPhoto(p.id);
+
+  holder.innerHTML = `
+    <div class="peak-detail" style="position:relative;">
+      <button class="close-detail" id="peak-detail-close" type="button">×</button>
+      <div class="peak-detail-head">
+        <span class="peak-icon ${climbed ? 'medal-glow' : ''}">${climbed ? peakMedalSvg(p, 52) : typeIconSvg(p.type, 30)}</span>
+        <div>
+          <h3>${p.name}</h3>
+          <p class="peak-region">${p.region}${p.altitude ? ' · ' + p.altitude.toLocaleString('es-AR') + ' m' : ''}</p>
+          <span class="diff-tag" style="background:${dm.color}22; color:${dm.color};">${dm.label}</span>
+        </div>
+      </div>
+      <p class="peak-blurb">${p.blurb || ''}</p>
+      ${photo ? `<img class="peak-photo-preview" src="${photo}">` : ''}
+      <label class="file-label" for="peak-photo-input">${photo ? '📷 Cambiar foto' : '📷 Subir una foto de la cumbre'}</label>
+      <input type="file" id="peak-photo-input" accept="image/*">
+      <div class="row" style="margin-top:12px;">
+        <input type="date" id="peak-date" style="flex:1;" value="${prog.date || todayISO()}">
+      </div>
+      <input type="text" id="peak-notes" placeholder="Notas (opcional)" value="${prog.notes ? prog.notes.replace(/"/g,'&quot;') : ''}" style="margin-top:8px;">
+      <div class="form-actions" style="margin-top:12px;">
+        ${climbed ? `<button class="btn-secondary" id="peak-unmark" type="button">Desmarcar</button>` : ''}
+        ${!p.builtin ? `<button class="btn-secondary" id="peak-delete" type="button">Eliminar cerro</button>` : ''}
+        <button class="btn-primary" id="peak-save" type="button">${climbed ? '✓ Guardar' : '🏅 Marcar como subido'}</button>
+      </div>
+    </div>`;
+
+  document.getElementById('peak-detail-close').addEventListener('click', () => {
+    selectedPeakId = null; renderPeaksGrid(); renderPeakDetail();
+  });
+  document.getElementById('peak-save').addEventListener('click', async () => {
+    const date = document.getElementById('peak-date').value || todayISO();
+    const notes = document.getElementById('peak-notes').value.trim();
+    const fileInput = document.getElementById('peak-photo-input');
+    if (fileInput.files && fileInput.files[0]){
+      const dataUrl = await compressImage(fileInput.files[0], 800);
+      await savePeakPhoto(p.id, dataUrl);
+    }
+    peaksProgress[p.id] = { climbed: true, date, notes };
+    await savePeaksProgress();
+    renderPeaksGrid(); renderPeaksStats(); renderPeakDetail();
+  });
+  if (climbed){
+    document.getElementById('peak-unmark').addEventListener('click', async () => {
+      delete peaksProgress[p.id];
+      await savePeaksProgress();
+      await deletePeakPhoto(p.id);
+      renderPeaksGrid(); renderPeaksStats(); renderPeakDetail();
+    });
+  }
+  if (!p.builtin){
+    document.getElementById('peak-delete').addEventListener('click', async () => {
+      customPeaks = customPeaks.filter(cp => cp.id !== p.id);
+      await saveCustomPeaks();
+      delete peaksProgress[p.id];
+      await savePeaksProgress();
+      await deletePeakPhoto(p.id);
+      selectedPeakId = null;
+      renderPeaksGrid(); renderPeaksStats(); renderPeakDetail();
+    });
+  }
+}
+
+function showPeakAddForm(){
+  document.getElementById('peak-add-card').style.display = 'none';
+  const holder = document.getElementById('peak-add-form-holder');
+  holder.innerHTML = `
+    <div class="add-form">
+      <input type="text" id="new-peak-name" placeholder="Nombre del cerro o quebrada">
+      <input type="text" id="new-peak-region" placeholder="Zona / región">
+      <div class="row">
+        <select id="new-peak-type" style="flex:1; margin-top:0;">
+          <option value="cerro">Cerro</option>
+          <option value="quebrada">Quebrada</option>
+        </select>
+        <input type="number" id="new-peak-alt" placeholder="Altura (m, opcional)" min="0" style="flex:1;">
+      </div>
+      <select id="new-peak-diff" style="margin-top:0;">
+        <option value="facil">Fácil</option>
+        <option value="moderada" selected>Moderada</option>
+        <option value="dificil">Difícil</option>
+        <option value="extrema">Extrema</option>
+      </select>
+      <div class="form-actions">
+        <button class="btn-secondary" id="peak-add-cancel" type="button">Cancelar</button>
+        <button class="btn-primary" id="peak-add-confirm" type="button">Agregar</button>
+      </div>
+    </div>`;
+  document.getElementById('peak-add-cancel').addEventListener('click', closePeakAddForm);
+  document.getElementById('peak-add-confirm').addEventListener('click', async () => {
+    const name = document.getElementById('new-peak-name').value.trim();
+    if (!name) return;
+    const region = document.getElementById('new-peak-region').value.trim();
+    const altitude = parseInt(document.getElementById('new-peak-alt').value) || null;
+    const difficulty = document.getElementById('new-peak-diff').value;
+    const type = document.getElementById('new-peak-type').value;
+    customPeaks.push({ id: 'custom_' + Date.now(), name, region, altitude, difficulty, type, blurb: '', builtin: false });
+    await saveCustomPeaks();
+    closePeakAddForm();
+    renderPeaksGrid(); renderPeaksStats();
+  });
+}
+function closePeakAddForm(){
+  document.getElementById('peak-add-form-holder').innerHTML = '';
+  document.getElementById('peak-add-card').style.display = 'block';
+}
+document.getElementById('peak-add-card').addEventListener('click', showPeakAddForm);
+
+async function init(){
+  document.getElementById('date-label').textContent = prettyDate();
+  habits = await loadHabits();
+  today.key = dateKeyOffset(0);
+  today.data = await loadDay(today.key);
+  renderHabits();
+  renderTrail();
+  await renderStreakAndWeek();
+
+  sessions = await loadSessions();
+  routines = await loadRoutines();
+  goals = await loadGoals();
+  customPeaks = await loadCustomPeaks();
+  peaksProgress = await loadPeaksProgress();
+
+  renderActivityStats();
+  renderSessions();
+  renderRoutines();
+  renderGoals();
+  renderKmChart();
+  await renderHeatmap();
+  renderPeaksStats();
+  renderPeaksGrid();
+}
+/* La app arranca sola cuando Firebase confirma la sesión (ver auth.onAuthStateChanged arriba) */
+</script>
+</body>
+</html>
