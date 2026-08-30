@@ -279,7 +279,11 @@
     font-size: 8px; padding: 1.5px 6px; border-radius: 8px; text-transform: uppercase;
     letter-spacing: .03em; font-weight: 700; margin-top: 1px;
   }
-  .peak-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-top: 14px; }
+  .peak-modal-overlay {
+    position: fixed; inset: 0; z-index: 60; background: rgba(10,13,18,0.72);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .peak-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; width: 100%; max-width: 380px; max-height: 85vh; overflow-y: auto; }
   .peak-detail-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
   .peak-detail-head .peak-icon { font-size: 26px; line-height: 0; }
   .peak-detail-head .peak-icon.medal-glow { filter: drop-shadow(0 0 10px rgba(227,163,68,0.65)); }
@@ -1768,6 +1772,7 @@ async function renderPeakDetail(){
   const photo = await loadPeakPhoto(p.id);
 
   holder.innerHTML = `
+    <div class="peak-modal-overlay" id="peak-modal-overlay">
     <div class="peak-detail" style="position:relative;">
       <button class="close-detail" id="peak-detail-close" type="button">×</button>
       <div class="peak-detail-head">
@@ -1791,8 +1796,14 @@ async function renderPeakDetail(){
         ${!p.builtin ? `<button class="btn-secondary" id="peak-delete" type="button">Eliminar cerro</button>` : ''}
         <button class="btn-primary" id="peak-save" type="button">${climbed ? '✓ Guardar' : '🏅 Marcar como subido'}</button>
       </div>
+    </div>
     </div>`;
 
+  document.getElementById('peak-modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'peak-modal-overlay'){
+      selectedPeakId = null; renderPeaksGrid(); renderPeakDetail();
+    }
+  });
   document.getElementById('peak-detail-close').addEventListener('click', () => {
     selectedPeakId = null; renderPeaksGrid(); renderPeakDetail();
   });
